@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<section class="hero simple-hero">
+    <h1>YumDash helps manage menu items, reservations, events, and customer messages in one place.</h1>
+    <div class="hero-actions">
+        <a role="button" asp-controller="Account" asp-action="Login">Admin Login</a>
+        <a role="button" class="secondary" asp-controller="Menu" asp-action="Index">View Menu</a>
+    </div>
+</section>
+
+<section class="homepage-section">
+    <div class="section-heading">
+        <h2>Features</h2>
+    </div>
+    <div class="grid">
+        <article class="home-card">
+            <div class="home-card-body">
+                <h2>Admin dashboard</h2>
+                <p>Log in to manage menu items, view reservations, and keep restaurant information organized.</p>
+            </div>
+            <div class="home-card-media">
+                <img src="~/images/admin-dashboard.png" alt="YumDash admin dashboard overview" />
+            </div>
+        </article>
+        <article class="home-card">
+            <div class="home-card-body">
+                <h2>Reservation and Private Event Management</h2>
+                <p>All reservations and private event requests can be handled through the software, enabling staff to approve or deny requests easily.</p>
+            </div>
+            <div class="home-card-media">
+                <img src="~/images/reservation-requests.png" alt="Reservation request management screen" />
+            </div>
+        </article>
+        <article class="home-card">
+            <div class="home-card-body">
+                <h2>Online Menu Editing</h2>
+                <p>Staff can edit the menu online, making it easy to update items, prices, and descriptions without needing to contact support.</p>
+            </div>
+            <div class="home-card-media">
+                <img src="~/images/manage-menu.png" alt="Online menu editing screen" />
+            </div>
+        </article>
+    </div>
+</section>
+
+<section class="homepage-section">
+    <div class="section-heading">
+        <h2>Menu preview</h2>
+        <p>A few example items from the restaurant side of the site.</p>
+    </div>
+    <div class="menu-preview-grid">
+        <article class="menu-preview-card">
+            <div class="menu-preview-copy">
+                <h3>Truffle Fries</h3>
+                <p>Crispy fries with parmesan and herbs.</p>
+                <small>Allergens: dairy</small>
+            </div>
+            <strong>$9.50</strong>
+        </article>
+        <article class="menu-preview-card">
+            <div class="menu-preview-copy">
+                <h3>Citrus Salmon</h3>
+                <p>Pan-seared salmon with seasonal vegetables.</p>
+                <small>Allergens: fish</small>
+            </div>
+            <strong>$24.00</strong>
+        </article>
+        <article class="menu-preview-card">
+            <div class="menu-preview-copy">
+                <h3>Wild Mushroom Pasta</h3>
+                <p>Creamy mushroom pasta with roasted garlic.</p>
+                <small>Allergens: gluten, dairy</small>
+            </div>
+            <strong>$19.00</strong>
+        </article>
+        <article class="menu-preview-card">
+            <div class="menu-preview-copy">
+                <h3>Chocolate Torte</h3>
+                <p>Rich flourless torte with whipped cream.</p>
+                <small>Allergens: dairy, eggs</small>
+            </div>
+            <strong>$8.00</strong>
+        </article>
+    </div>
+    <p class="section-link">
+        <a asp-controller="Menu" asp-action="Index">Open the full menu</a>
+    </p>
+</section>

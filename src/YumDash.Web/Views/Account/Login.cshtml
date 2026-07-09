@@ -1,0 +1,17 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Admin Login";
+}
+
+<h1>Admin Login</h1>
+<form method="post" class="login-form">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly"></div>
+    <label data-label="Email">Email <input asp-for="Email" /></label>
+    <label data-label="Password">Password <input asp-for="Password" type="password" /></label>
+    <div class="checkbox-row">
+        <input asp-for="RememberMe" type="checkbox" />
+        <label asp-for="RememberMe" class="checkbox-label">Remember me</label>
+    </div>
+    <button type="submit">Sign In</button>
+</form>

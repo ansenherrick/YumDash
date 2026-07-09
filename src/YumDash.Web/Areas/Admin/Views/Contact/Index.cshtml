@@ -1,0 +1,189 @@
+@model AdminContactMessagesIndexViewModel
+@{
+    ViewData["Title"] = "Contact Messages";
+}
+
+<div class="admin-header">
+    <h1>Contact Messages</h1>
+</div>
+
+<div class="admin-stats-grid">
+    <article>
+        <header>Pending</header>
+        <strong>@Model.PendingCount</strong>
+    </article>
+    <article>
+        <header>Resolved</header>
+        <strong>@Model.ResolvedCount</strong>
+    </article>
+    <article>
+        <header>Archived</header>
+        <strong>@Model.ArchivedCount</strong>
+    </article>
+</div>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Pending</h2>
+        <p>Messages that still need a response.</p>
+    </div>
+
+    @if (Model.PendingMessages.Count == 0)
+    {
+        <article class="admin-empty-state">No pending contact messages.</article>
+    }
+    else
+    {
+        <div class="admin-reservation-list">
+            @foreach (var message in Model.PendingMessages)
+            {
+                <article class="admin-reservation-card">
+                    <div class="admin-reservation-top">
+                        <div>
+                            <h3>@message.Name</h3>
+                            <p>@message.Email</p>
+                        </div>
+                        <strong class="reservation-status status-pending">@message.Status</strong>
+                    </div>
+
+                    <div class="admin-reservation-meta">
+                        <div>
+                            <span>Subject</span>
+                            <strong>@(string.IsNullOrWhiteSpace(message.Subject) ? "No subject" : message.Subject)</strong>
+                        </div>
+                        <div>
+                            <span>Submitted</span>
+                            <strong>@message.CreatedAt.ToLocalTime().ToString("g")</strong>
+                        </div>
+                    </div>
+
+                    <p class="admin-reservation-notes">@message.Message</p>
+
+                    <form asp-action="UpdateStatus" method="post" class="reservation-status-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@message.Id" />
+                        <label>
+                            Update status
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<SubmissionStatus>())
+                                {
+                                    <option value="@status" selected="@(status == message.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                        </label>
+                        <button type="submit">Save</button>
+                    </form>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Resolved</h2>
+        <p>Messages that have already been handled.</p>
+    </div>
+
+    @if (Model.ResolvedMessages.Count == 0)
+    {
+        <article class="admin-empty-state">No resolved contact messages.</article>
+    }
+    else
+    {
+        <div class="admin-reservation-list">
+            @foreach (var message in Model.ResolvedMessages)
+            {
+                <article class="admin-reservation-card">
+                    <div class="admin-reservation-top">
+                        <div>
+                            <h3>@message.Name</h3>
+                            <p>@message.Email</p>
+                        </div>
+                        <strong class="reservation-status status-resolved">@message.Status</strong>
+                    </div>
+
+                    <div class="admin-reservation-meta">
+                        <div>
+                            <span>Subject</span>
+                            <strong>@(string.IsNullOrWhiteSpace(message.Subject) ? "No subject" : message.Subject)</strong>
+                        </div>
+                        <div>
+                            <span>Submitted</span>
+                            <strong>@message.CreatedAt.ToLocalTime().ToString("g")</strong>
+                        </div>
+                    </div>
+
+                    <p class="admin-reservation-notes">@message.Message</p>
+
+                    <form asp-action="UpdateStatus" method="post" class="reservation-status-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@message.Id" />
+                        <label>
+                            Update status
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<SubmissionStatus>())
+                                {
+                                    <option value="@status" selected="@(status == message.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                        </label>
+                        <button type="submit">Save</button>
+                    </form>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Archived</h2>
+        <p>Messages stored for reference only.</p>
+    </div>
+
+    @if (Model.ArchivedMessages.Count == 0)
+    {
+        <article class="admin-empty-state">No archived contact messages.</article>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Subject</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var message in Model.ArchivedMessages)
+            {
+                <tr>
+                    <td>@message.Name</td>
+                    <td>@message.Email</td>
+                    <td>@(string.IsNullOrWhiteSpace(message.Subject) ? "No subject" : message.Subject)</td>
+                    <td>@message.CreatedAt.ToLocalTime().ToString("g")</td>
+                    <td>@message.Status</td>
+                    <td>
+                        <form asp-action="UpdateStatus" method="post" class="inline-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@message.Id" />
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<SubmissionStatus>())
+                                {
+                                    <option value="@status" selected="@(status == message.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                            <button type="submit">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</section>

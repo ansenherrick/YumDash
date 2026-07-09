@@ -1,0 +1,17 @@
+@model MenuFilterViewModel
+@{
+    ViewData["Title"] = "Menu";
+}
+
+<section>
+    <h1>Menu</h1>
+    <p>Filter by category, maximum price, or allergens using a React-powered menu explorer.</p>
+    <div id="menu-app"
+         data-items-url="@Url.Action("Items", "Menu")"
+         data-categories='@System.Text.Json.JsonSerializer.Serialize(Model.Categories.Select(category => category.ToString()))'>
+    </div>
+</section>
+
+@section Scripts {
+    <script type="module" src="~/js/menu-filter.js" asp-append-version="true"></script>
+}

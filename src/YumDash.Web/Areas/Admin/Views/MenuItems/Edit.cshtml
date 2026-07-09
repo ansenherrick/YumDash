@@ -1,0 +1,10 @@
+@model MenuItem
+@{
+    ViewData["Title"] = "Edit Menu Item";
+    ViewData["SubmitLabel"] = "Save";
+    ViewData["FormAction"] = "Edit";
+    ViewData["FormRouteId"] = Model.Id;
+}
+
+<h1>Edit Menu Item</h1>
+<partial name="_MenuItemForm" model="Model" />

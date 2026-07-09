@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - YumDash</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@picocss/pico@2/css/pico.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="site-nav-wrap">
+        <nav class="container site-nav">
+            <ul>
+                <li>
+                    <div class="brand-block">
+                        <strong class="brand">YumDash</strong>
+                        <small class="brand-tagline">All in one restaurant management app</small>
+                    </div>
+                </li>
+            </ul>
+            <ul class="nav-links">
+                <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li><a asp-area="Admin" asp-controller="MenuItems" asp-action="Index">Menu</a></li>
+                }
+                else
+                {
+                    <li><a asp-area="" asp-controller="Menu" asp-action="Index">Menu</a></li>
+                }
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li><a asp-area="Admin" asp-controller="Reservations" asp-action="Index">Reservations</a></li>
+                }
+                else
+                {
+                    <li><a asp-area="" asp-controller="Reservations" asp-action="Create">Reservations</a></li>
+                }
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li><a asp-area="Admin" asp-controller="Events" asp-action="Index">Private Events</a></li>
+                }
+                else
+                {
+                    <li><a asp-area="" asp-controller="Events" asp-action="Create">Private Events</a></li>
+                }
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li><a asp-area="Admin" asp-controller="Contact" asp-action="Index">Contact</a></li>
+                }
+                else
+                {
+                    <li><a asp-area="" asp-controller="Contact" asp-action="Index">Contact</a></li>
+                }
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li><a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                }
+                else
+                {
+                    <li><a class="admin-link" asp-area="" asp-controller="Account" asp-action="Login">Admin Login</a></li>
+                }
+            </ul>
+        </nav>
+    </div>
+
+    <main class="container">
+        @if (TempData["SuccessMessage"] is string message)
+        {
+            <article class="success-banner">@message</article>
+        }
+        @RenderBody()
+    </main>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

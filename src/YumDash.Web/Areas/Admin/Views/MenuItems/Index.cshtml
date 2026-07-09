@@ -1,0 +1,153 @@
+@model AdminMenuItemsIndexViewModel
+@{
+    ViewData["Title"] = "Manage Menu";
+}
+
+<div class="admin-header">
+    <h1>Manage Menu</h1>
+    <a role="button" asp-action="Create">Add Item</a>
+</div>
+
+@if (Model.HasPendingChanges)
+{
+    <article class="status-message pending-changes-banner">
+        <strong>Pending menu changes</strong>
+        <p>
+            @Model.PendingAdditionCount item(s) queued to add and @Model.PendingDeletionCount item(s) queued to delete.
+            Nothing will hit the database until you save changes.
+        </p>
+        <div class="admin-filter-actions">
+            <form asp-action="SaveChanges" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit">Save Changes</button>
+            </form>
+            <form asp-action="DiscardChanges" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="secondary">Discard Changes</button>
+            </form>
+        </div>
+    </article>
+}
+
+<form method="get" class="admin-controls">
+    <div class="admin-filter-grid">
+        <label>
+            Sort
+            <select name="sort">
+                <option value="category-dining" selected="@(Model.Sort == "category-dining" ? "selected" : null)">Category: dining order</option>
+                <option value="category-alpha" selected="@(Model.Sort == "category-alpha" ? "selected" : null)">Category: A to Z</option>
+                <option value="name-asc" selected="@(Model.Sort == "name-asc" ? "selected" : null)">Name: A to Z</option>
+                <option value="name-desc" selected="@(Model.Sort == "name-desc" ? "selected" : null)">Name: Z to A</option>
+                <option value="price-asc" selected="@(Model.Sort == "price-asc" ? "selected" : null)">Price: low to high</option>
+                <option value="price-desc" selected="@(Model.Sort == "price-desc" ? "selected" : null)">Price: high to low</option>
+                <option value="availability-available-first" selected="@(Model.Sort == "availability-available-first" ? "selected" : null)">Availability: available first</option>
+                <option value="availability-unavailable-first" selected="@(Model.Sort == "availability-unavailable-first" ? "selected" : null)">Availability: unavailable first</option>
+            </select>
+        </label>
+
+        <label>
+            Category
+            <select name="category">
+                <option value="">All categories</option>
+                @foreach (var category in Model.Categories)
+                {
+                    <option value="@category" selected="@(Model.Category == category ? "selected" : null)">@category</option>
+                }
+            </select>
+        </label>
+
+        <label>
+            Price at least
+            <input type="number" name="minPrice" value="@Model.MinPrice" min="0" step="0.01" />
+        </label>
+
+        <label>
+            Price at most
+            <input type="number" name="maxPrice" value="@Model.MaxPrice" min="0" step="0.01" />
+        </label>
+
+        <label>
+            Availability
+            <select name="availability">
+                <option value="all" selected="@(Model.Availability == "all" ? "selected" : null)">All items</option>
+                <option value="available" selected="@(Model.Availability == "available" ? "selected" : null)">Available only</option>
+                <option value="unavailable" selected="@(Model.Availability == "unavailable" ? "selected" : null)">Unavailable only</option>
+            </select>
+        </label>
+    </div>
+
+    <div class="admin-filter-actions">
+        <button type="submit">Apply</button>
+        @if (Model.HasActiveFilters || Model.Sort != "category-dining")
+        {
+            <a asp-action="Index" role="button" class="secondary">Reset</a>
+        }
+    </div>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Available</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (Model.Items.Count == 0)
+    {
+        <tr>
+            <td colspan="5">No menu items match the current filters.</td>
+        </tr>
+    }
+    else
+    {
+        @foreach (var item in Model.Items)
+        {
+            <tr class="@(item.IsPendingAddition ? "is-pending-addition" : item.IsPendingDeletion ? "is-pending-deletion" : null)">
+                <td>@item.Name</td>
+                <td>@item.Category</td>
+                <td>$@item.Price.ToString("N2")</td>
+                <td>
+                    @(item.IsAvailable ? "Yes" : "No")
+                    @if (item.IsPendingAddition)
+                    {
+                        <small class="pending-pill">Queued add</small>
+                    }
+                    else if (item.IsPendingDeletion)
+                    {
+                        <small class="pending-pill">Queued delete</small>
+                    }
+                </td>
+                <td class="menu-item-actions">
+                    @if (item.IsPendingAddition)
+                    {
+                        <form asp-action="RemovePendingAddition" method="post" class="inline-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="draftId" value="@item.DraftId" />
+                            <button type="submit" class="secondary">Remove</button>
+                        </form>
+                    }
+                    else if (item.IsPendingDeletion)
+                    {
+                        <form asp-action="UndoDelete" asp-route-id="@item.Id" method="post" class="inline-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="secondary">Undo Delete</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="inline-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="secondary">Queue Delete</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>

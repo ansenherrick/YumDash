@@ -1,0 +1,10 @@
+@model MenuItem
+@{
+    ViewData["Title"] = "Add Menu Item";
+    ViewData["SubmitLabel"] = "Add To Pending Changes";
+    ViewData["FormAction"] = "Create";
+}
+
+<h1>Add Menu Item</h1>
+<p>This queues the item on the manage page. Use Save Changes there to apply it to the database.</p>
+<partial name="_MenuItemForm" model="Model" />

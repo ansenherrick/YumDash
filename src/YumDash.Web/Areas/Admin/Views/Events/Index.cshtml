@@ -1,0 +1,201 @@
+@model AdminEventInquiriesIndexViewModel
+@{
+    ViewData["Title"] = "Private Event Inquiries";
+}
+
+<div class="admin-header">
+    <h1>Private Event Inquiries</h1>
+</div>
+
+<div class="admin-stats-grid">
+    <article>
+        <header>Pending</header>
+        <strong>@Model.PendingCount</strong>
+    </article>
+    <article>
+        <header>Guests In Pipeline</header>
+        <strong>@Model.TotalPendingGuests</strong>
+    </article>
+    <article>
+        <header>Resolved</header>
+        <strong>@Model.ResolvedCount</strong>
+    </article>
+    <article>
+        <header>Archived</header>
+        <strong>@Model.ArchivedCount</strong>
+    </article>
+</div>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Pending</h2>
+        <p>New private event inquiries that still need follow-up.</p>
+    </div>
+
+    @if (Model.PendingInquiries.Count == 0)
+    {
+        <article class="admin-empty-state">No pending private event inquiries.</article>
+    }
+    else
+    {
+        <div class="admin-reservation-list">
+            @foreach (var inquiry in Model.PendingInquiries)
+            {
+                <article class="admin-reservation-card">
+                    <div class="admin-reservation-top">
+                        <div>
+                            <h3>@inquiry.Name</h3>
+                            <p>@inquiry.Email · @(string.IsNullOrWhiteSpace(inquiry.Phone) ? "No phone provided" : inquiry.Phone)</p>
+                        </div>
+                        <strong class="reservation-status status-pending">@inquiry.Status</strong>
+                    </div>
+
+                    <div class="admin-reservation-meta">
+                        <div>
+                            <span>Event Date</span>
+                            <strong>@(inquiry.EventDate?.ToString("D") ?? "Not specified")</strong>
+                        </div>
+                        <div>
+                            <span>Party Size</span>
+                            <strong>@inquiry.PartySize guests</strong>
+                        </div>
+                        <div>
+                            <span>Submitted</span>
+                            <strong>@inquiry.CreatedAt.ToLocalTime().ToString("g")</strong>
+                        </div>
+                    </div>
+
+                    <p class="admin-reservation-notes">@inquiry.Message</p>
+
+                    <form asp-action="UpdateStatus" method="post" class="reservation-status-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@inquiry.Id" />
+                        <label>
+                            Update status
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<SubmissionStatus>())
+                                {
+                                    <option value="@status" selected="@(status == inquiry.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                        </label>
+                        <button type="submit">Save</button>
+                    </form>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Resolved</h2>
+        <p>Inquiries that have already been handled.</p>
+    </div>
+
+    @if (Model.ResolvedInquiries.Count == 0)
+    {
+        <article class="admin-empty-state">No resolved private event inquiries.</article>
+    }
+    else
+    {
+        <div class="admin-reservation-list">
+            @foreach (var inquiry in Model.ResolvedInquiries)
+            {
+                <article class="admin-reservation-card">
+                    <div class="admin-reservation-top">
+                        <div>
+                            <h3>@inquiry.Name</h3>
+                            <p>@inquiry.Email · @(string.IsNullOrWhiteSpace(inquiry.Phone) ? "No phone provided" : inquiry.Phone)</p>
+                        </div>
+                        <strong class="reservation-status status-resolved">@inquiry.Status</strong>
+                    </div>
+
+                    <div class="admin-reservation-meta">
+                        <div>
+                            <span>Event Date</span>
+                            <strong>@(inquiry.EventDate?.ToString("D") ?? "Not specified")</strong>
+                        </div>
+                        <div>
+                            <span>Party Size</span>
+                            <strong>@inquiry.PartySize guests</strong>
+                        </div>
+                        <div>
+                            <span>Submitted</span>
+                            <strong>@inquiry.CreatedAt.ToLocalTime().ToString("g")</strong>
+                        </div>
+                    </div>
+
+                    <p class="admin-reservation-notes">@inquiry.Message</p>
+
+                    <form asp-action="UpdateStatus" method="post" class="reservation-status-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@inquiry.Id" />
+                        <label>
+                            Update status
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<SubmissionStatus>())
+                                {
+                                    <option value="@status" selected="@(status == inquiry.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                        </label>
+                        <button type="submit">Save</button>
+                    </form>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Archived</h2>
+        <p>Older private event inquiries you want to keep for reference.</p>
+    </div>
+
+    @if (Model.ArchivedInquiries.Count == 0)
+    {
+        <article class="admin-empty-state">No archived private event inquiries.</article>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Guest</th>
+                    <th>Event Date</th>
+                    <th>Party</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var inquiry in Model.ArchivedInquiries)
+            {
+                <tr>
+                    <td>@inquiry.Name<br /><small>@inquiry.Email</small></td>
+                    <td>@(inquiry.EventDate?.ToString("D") ?? "Not specified")</td>
+                    <td>@inquiry.PartySize</td>
+                    <td>@inquiry.CreatedAt.ToLocalTime().ToString("g")</td>
+                    <td>@inquiry.Status</td>
+                    <td>
+                        <form asp-action="UpdateStatus" method="post" class="inline-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@inquiry.Id" />
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<SubmissionStatus>())
+                                {
+                                    <option value="@status" selected="@(status == inquiry.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                            <button type="submit">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</section>

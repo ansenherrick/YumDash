@@ -1,0 +1,44 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <form asp-area="" asp-controller="Account" asp-action="Logout" method="post">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="secondary">Logout</button>
+    </form>
+</div>
+
+<div class="grid">
+    <article>
+        <header>Estimated Weekly Revenue</header>
+        <strong>$@Model.EstimatedWeeklyRevenue.ToString("N2")</strong>
+    </article>
+    <article>
+        <header>Pending Reservations</header>
+        <strong>@Model.PendingReservations</strong>
+    </article>
+</div>
+
+<div class="grid">
+    <article>
+        <header>Popular Categories</header>
+        <ul>
+            @foreach (var category in Model.PopularCategories)
+            {
+                <li>@category.Label: @category.Count items</li>
+            }
+        </ul>
+    </article>
+    <article>
+        <header>Busiest Days</header>
+        <ul>
+            @foreach (var day in Model.BusiestDays)
+            {
+                <li>@day.Label: @day.Count guests</li>
+            }
+        </ul>
+    </article>
+</div>

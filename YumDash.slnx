@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/YumDash.Web/YumDash.Web.csproj" />
+  </Folder>
+</Solution>

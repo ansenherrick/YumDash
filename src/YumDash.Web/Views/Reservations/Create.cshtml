@@ -1,0 +1,24 @@
+@model Reservation
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<h1>Reservation Request</h1>
+<form method="post" class="reservation-form">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly"></div>
+    <div class="grid">
+        <label>Full Name <input asp-for="GuestName" /></label>
+        <label>Email <input asp-for="Email" /></label>
+    </div>
+    <div class="grid">
+        <label>Phone <input asp-for="Phone" /></label>
+        <label>Date & Time <input asp-for="ReservationDate" type="datetime-local" /></label>
+    </div>
+    <div class="grid">
+        <label>Party Size <input asp-for="PartySize" type="number" /></label>
+        <label>Estimated Spend / Guest <input asp-for="EstimatedSpendPerGuest" type="number" step="0.01" /></label>
+    </div>
+    <label>Notes <textarea asp-for="Notes"></textarea></label>
+    <button type="submit">Send Request</button>
+</form>

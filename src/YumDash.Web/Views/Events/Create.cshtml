@@ -1,0 +1,21 @@
+@model EventInquiry
+@{
+    ViewData["Title"] = "Private Events";
+}
+
+<h1>Private Party Inquiry</h1>
+<form method="post" class="event-inquiry-form">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly"></div>
+    <div class="grid">
+        <label>Name <input asp-for="Name" /></label>
+        <label>Email <input asp-for="Email" /></label>
+    </div>
+    <div class="grid">
+        <label>Phone <input asp-for="Phone" /></label>
+        <label>Event Date <input asp-for="EventDate" type="date" /></label>
+    </div>
+    <label data-label="Party Size">Party Size <input asp-for="PartySize" type="number" /></label>
+    <label data-label="Event Details">Tell us about your event <textarea asp-for="Message"></textarea></label>
+    <button type="submit">Send Inquiry</button>
+</form>

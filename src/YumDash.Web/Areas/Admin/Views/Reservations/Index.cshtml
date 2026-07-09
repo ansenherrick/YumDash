@@ -1,0 +1,188 @@
+@model AdminReservationsIndexViewModel
+@{
+    ViewData["Title"] = "Reservation Requests";
+}
+
+<div class="admin-header">
+    <h1>Reservation Requests</h1>
+    <a role="button" asp-action="ExportWeekly">Export Weekly CSV</a>
+</div>
+
+<div class="admin-stats-grid">
+    <article>
+        <header>Incoming Requests</header>
+        <strong>@Model.PendingCount</strong>
+    </article>
+    <article>
+        <header>Upcoming Reservations</header>
+        <strong>@Model.UpcomingCount</strong>
+    </article>
+    <article>
+        <header>Upcoming Revenue</header>
+        <strong>$@Model.UpcomingRevenue.ToString("N2")</strong>
+    </article>
+</div>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Incoming Requests</h2>
+        <p>New and pending reservation requests that still need a decision.</p>
+    </div>
+
+    @if (Model.PendingRequests.Count == 0)
+    {
+        <article class="admin-empty-state">No pending reservation requests.</article>
+    }
+    else
+    {
+        <div class="admin-reservation-list">
+            @foreach (var reservation in Model.PendingRequests)
+            {
+                <article class="admin-reservation-card">
+                    <div class="admin-reservation-top">
+                        <div>
+                            <h3>@reservation.GuestName</h3>
+                            <p>@reservation.Email · @reservation.Phone</p>
+                        </div>
+                        <strong class="reservation-status status-pending">@reservation.Status</strong>
+                    </div>
+
+                    <div class="admin-reservation-meta">
+                        <div><span>Date</span><strong>@reservation.ReservationDate.ToString("f")</strong></div>
+                        <div><span>Party</span><strong>@reservation.PartySize guests</strong></div>
+                        <div><span>Estimated Revenue</span><strong>$@reservation.EstimatedRevenue.ToString("N2")</strong></div>
+                        <div><span>Submitted</span><strong>@reservation.CreatedAt.ToLocalTime().ToString("g")</strong></div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(reservation.Notes))
+                    {
+                        <p class="admin-reservation-notes">@reservation.Notes</p>
+                    }
+
+                    <form asp-action="UpdateStatus" method="post" class="reservation-status-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@reservation.Id" />
+                        <label>
+                            Update status
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<ReservationStatus>())
+                                {
+                                    <option value="@status" selected="@(status == reservation.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                        </label>
+                        <button type="submit">Save</button>
+                    </form>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Upcoming Reservations</h2>
+        <p>Confirmed bookings that are still ahead of today.</p>
+    </div>
+
+    @if (Model.UpcomingReservations.Count == 0)
+    {
+        <article class="admin-empty-state">No upcoming confirmed reservations.</article>
+    }
+    else
+    {
+        <div class="admin-reservation-list">
+            @foreach (var reservation in Model.UpcomingReservations)
+            {
+                <article class="admin-reservation-card">
+                    <div class="admin-reservation-top">
+                        <div>
+                            <h3>@reservation.GuestName</h3>
+                            <p>@reservation.Email · @reservation.Phone</p>
+                        </div>
+                        <strong class="reservation-status status-confirmed">@reservation.Status</strong>
+                    </div>
+
+                    <div class="admin-reservation-meta">
+                        <div><span>Date</span><strong>@reservation.ReservationDate.ToString("f")</strong></div>
+                        <div><span>Party</span><strong>@reservation.PartySize guests</strong></div>
+                        <div><span>Estimated Revenue</span><strong>$@reservation.EstimatedRevenue.ToString("N2")</strong></div>
+                        <div><span>Submitted</span><strong>@reservation.CreatedAt.ToLocalTime().ToString("g")</strong></div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(reservation.Notes))
+                    {
+                        <p class="admin-reservation-notes">@reservation.Notes</p>
+                    }
+
+                    <form asp-action="UpdateStatus" method="post" class="reservation-status-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@reservation.Id" />
+                        <label>
+                            Update status
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<ReservationStatus>())
+                                {
+                                    <option value="@status" selected="@(status == reservation.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                        </label>
+                        <button type="submit">Save</button>
+                    </form>
+                </article>
+            }
+        </div>
+    }
+</section>
+
+<section class="admin-reservation-section">
+    <div class="section-heading">
+        <h2>Past Requests & History</h2>
+        <p>Past reservation dates and any canceled requests.</p>
+    </div>
+
+    @if (Model.ReservationHistory.Count == 0)
+    {
+        <article class="admin-empty-state">No reservation history yet.</article>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Guest</th>
+                    <th>Date</th>
+                    <th>Party</th>
+                    <th>Status</th>
+                    <th>Revenue</th>
+                    <th>Update</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var reservation in Model.ReservationHistory)
+            {
+                <tr>
+                    <td>@reservation.GuestName<br /><small>@reservation.Email</small></td>
+                    <td>@reservation.ReservationDate.ToString("f")</td>
+                    <td>@reservation.PartySize</td>
+                    <td>@reservation.Status</td>
+                    <td>$@reservation.EstimatedRevenue.ToString("N2")</td>
+                    <td>
+                        <form asp-action="UpdateStatus" method="post" class="inline-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@reservation.Id" />
+                            <select name="status">
+                                @foreach (var status in Enum.GetValues<ReservationStatus>())
+                                {
+                                    <option value="@status" selected="@(status == reservation.Status ? "selected" : null)">@status</option>
+                                }
+                            </select>
+                            <button type="submit">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</section>

@@ -1,0 +1,22 @@
+@model MenuItem
+@{
+    var submitLabel = ViewData["SubmitLabel"] as string ?? "Save";
+    var formAction = ViewData["FormAction"] as string;
+    var formRouteId = ViewData["FormRouteId"] as int?;
+}
+
+<form method="post" asp-area="Admin" asp-controller="MenuItems" asp-action="@formAction" asp-route-id="@formRouteId">
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
+    <div asp-validation-summary="ModelOnly"></div>
+    <label>Name <input asp-for="Name" /></label>
+    <label>Category <select asp-for="Category" asp-items="Html.GetEnumSelectList<MenuCategory>()"></select></label>
+    <label>Price <input asp-for="Price" type="number" step="0.01" /></label>
+    <label>Description <textarea asp-for="Description"></textarea></label>
+    <label>Allergens <input asp-for="Allergens" /></label>
+    <div class="checkbox-row form-checkbox-row">
+        <input asp-for="IsAvailable" type="checkbox" />
+        <label asp-for="IsAvailable" class="checkbox-label">Available</label>
+    </div>
+    <button type="submit">@submitLabel</button>
+</form>
