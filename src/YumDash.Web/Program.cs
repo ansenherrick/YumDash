@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using YumDash.Web.Data;
 using YumDash.Web.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = NormalizePostgresConnectionString(
+    builder.Configuration.GetConnectionString("DefaultConnection"));
 
 if (string.IsNullOrWhiteSpace(connectionString))
 {
@@ -52,6 +54,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapGet("/health", () => Results.Ok(new { ok = true }))
+    .AllowAnonymous();
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -72,3 +77,59 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+static string NormalizePostgresConnectionString(string? rawConnectionString)
+{
+    if (string.IsNullOrWhiteSpace(rawConnectionString))
+    {
+        return string.Empty;
+    }
+
+    var normalized = rawConnectionString.Trim().Trim('\uFEFF').Trim().Trim('"', '\'');
+
+    const string connectionStringPrefix = "ConnectionStrings__DefaultConnection=";
+    if (normalized.StartsWith(connectionStringPrefix, StringComparison.OrdinalIgnoreCase))
+    {
+        normalized = normalized[connectionStringPrefix.Length..].Trim();
+    }
+
+    if (normalized.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+        normalized.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+    {
+        return ConvertPostgresUriToConnectionString(normalized);
+    }
+
+    try
+    {
+        _ = new NpgsqlConnectionStringBuilder(normalized);
+        return normalized;
+    }
+    catch (ArgumentException ex)
+    {
+        throw new InvalidOperationException(
+            "Connection string 'DefaultConnection' is present but invalid. In Azure, set ConnectionStrings__DefaultConnection to only the PostgreSQL connection string value, without quotes or the setting name.",
+            ex);
+    }
+}
+
+static string ConvertPostgresUriToConnectionString(string connectionString)
+{
+    if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri))
+    {
+        throw new InvalidOperationException(
+            "Connection string 'DefaultConnection' is not a valid PostgreSQL URI.");
+    }
+
+    var userInfo = uri.UserInfo.Split(':', 2);
+    var builder = new NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.IsDefaultPort ? 5432 : uri.Port,
+        Database = uri.AbsolutePath.Trim('/'),
+        Username = userInfo.Length > 0 ? Uri.UnescapeDataString(userInfo[0]) : string.Empty,
+        Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : string.Empty,
+        SslMode = SslMode.Require
+    };
+
+    return builder.ConnectionString;
+}
