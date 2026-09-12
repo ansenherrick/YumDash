@@ -20,8 +20,10 @@ public class DashboardController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var today = DateTime.Today;
-        var weekEnd = today.AddDays(7);
+        // Preserve calendar-day boundaries, but send UTC instants to PostgreSQL.
+        var localToday = DateTime.Today;
+        var today = localToday.ToUniversalTime();
+        var weekEnd = localToday.AddDays(7).ToUniversalTime();
 
         var upcomingReservations = await _context.Reservations
             .AsNoTracking()

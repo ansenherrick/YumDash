@@ -26,7 +26,7 @@ public class ReservationsController : Controller
             .OrderByDescending(reservation => reservation.ReservationDate)
             .ToListAsync();
 
-        var now = DateTime.Now;
+        var now = DateTime.UtcNow;
 
         var pendingRequests = reservations
             .Where(reservation => reservation.Status == ReservationStatus.Pending)
@@ -80,8 +80,9 @@ public class ReservationsController : Controller
     [HttpGet]
     public async Task<FileResult> ExportWeekly(DateTime? startDate = null)
     {
-        var start = (startDate ?? DateTime.Today).Date;
-        var end = start.AddDays(7);
+        var calendarStart = (startDate ?? DateTime.Today).Date;
+        var start = calendarStart.ToUniversalTime();
+        var end = calendarStart.AddDays(7).ToUniversalTime();
 
         var reservations = await _context.Reservations
             .AsNoTracking()
@@ -97,7 +98,7 @@ public class ReservationsController : Controller
             csv.AppendLine($"{Escape(reservation.GuestName)},{Escape(reservation.Email)},{reservation.ReservationDate:O},{reservation.PartySize},{reservation.Status},{reservation.EstimatedRevenue}");
         }
 
-        return File(Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", $"reservations-{start:yyyy-MM-dd}.csv");
+        return File(Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", $"reservations-{calendarStart:yyyy-MM-dd}.csv");
     }
 
     private static string Escape(string value)

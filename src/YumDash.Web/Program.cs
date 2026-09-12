@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using System.Net;
 using YumDash.Web.Data;
 using YumDash.Web.Models;
 
@@ -16,6 +18,20 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 
 builder.Services.AddControllersWithViews();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
+    options.ForwardLimit = 1;
+    foreach (var proxy in builder.Configuration.GetSection("ReverseProxy:KnownProxies").GetChildren())
+    {
+        var address = IPAddress.Parse(proxy.Value!);
+        options.KnownProxies.Add(address);
+        if (address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+        {
+            options.KnownProxies.Add(address.MapToIPv6());
+        }
+    }
+});
 builder.Services
     .AddDataProtection()
     .PersistKeysToDbContext<AppDbContext>();
@@ -41,6 +57,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 var app = builder.Build();
+app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {
