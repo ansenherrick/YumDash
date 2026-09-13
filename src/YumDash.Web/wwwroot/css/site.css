@@ -15,6 +15,7 @@
 }
 
 :root {
+    color-scheme: light;
     --yd-bg: #f8f9fb;
     --yd-surface: #ffffff;
     --yd-surface-2: #fafbfc;
@@ -189,6 +190,19 @@ table {
     background: var(--yd-surface);
     border: 1px solid var(--yd-border);
     color: var(--yd-text);
+}
+
+table th,
+table td {
+    background: var(--yd-surface);
+    color: var(--yd-text);
+    border-color: var(--yd-border);
+}
+
+thead th,
+tfoot th,
+tfoot td {
+    background: var(--yd-surface-2);
 }
 
 thead,
@@ -897,6 +911,16 @@ form label {
 .reservation-form {
     display: grid;
     margin: 0 auto;
+}
+
+.reservation-form .field-validation-error,
+.reservation-form .validation-summary-errors {
+    color: #b42318;
+}
+
+.reservation-form .field-validation-error {
+    display: block;
+    font-size: 0.875rem;
 }
 
 .reservation-form button,
