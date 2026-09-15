@@ -56,15 +56,3 @@ export SeedAdmin__Email="admin@example.com"
 export SeedAdmin__Password="ChangeMe123"
 dotnet run --project src/YumDash.Web/YumDash.Web.csproj
 ```
-
-## GitHub Readiness
-
-Local-only artifacts are ignored and should not be committed:
-
-- build output (`bin/`, `obj/`)
-- local SDK/cache folders (`.dotnet/`, `.nuget/`, `.lavish/`)
-- macOS metadata files (`.DS_Store`)
-
-## Deployment Notes
-
-See [docs/deployment.md](docs/deployment.md) for the current Azure plus Supabase deployment path, remaining migration work, and production configuration notes.
